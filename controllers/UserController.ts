@@ -57,6 +57,21 @@ class UserController {
       next(e);
     }
   }
+
+  async logout(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    try {
+      const { refresh_token } = req.cookies;
+      const logout_result = await UserService.logout(refresh_token);
+      res.clearCookie("refresh_token");
+      return res.json(logout_result);
+    } catch (e: any) {
+      next(e);
+    }
+  }
 }
 
 export default new UserController();

@@ -50,6 +50,14 @@ class UserService {
     await TokensService.saveToken(user._id, tokens.refresh_token);
     return { ...tokens, user: new_user_dto };
   }
+
+  async logout(refrehs_token: string) {
+    if (!refrehs_token) throw UserError.UnautorizedError();
+    const deleted_refresh_token = await TokensService.deleteToken(
+      refrehs_token
+    );
+    return deleted_refresh_token;
+  }
 }
 
 export default new UserService();
