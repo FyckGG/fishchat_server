@@ -4,7 +4,7 @@ const UserSchema = new Schema({
   email: { type: String, unique: true, required: true },
   login: { type: String, unique: true, required: true },
   password: { type: String, unique: true, required: true },
-  sign_date: { type: Date, default: Date.now },
+  sign_date: { type: Date, default: Date.now, required: true },
 });
 
 //module.exports = new model("UserSchema", UserSchema);
