@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import user_router from "./router/UserRouter";
+import createWss from "./websocket_server";
 
 const PORT = process.env.PORT || 5000;
 dotenv.config();
@@ -37,6 +38,7 @@ const start = async () => {
     const db_url = process.env.DB_URL;
     await mongoose.connect(db_url as string);
     app.listen(PORT, () => console.log(`started on port ${PORT}`));
+    createWss();
   } catch (e) {
     console.log(e);
   }
