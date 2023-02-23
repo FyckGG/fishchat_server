@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import UsersSearchService from "./services/UsersSearchService";
+import SearchService from "./services/SearchService";
 
 const createWss = () => {
   const WSS_PORT = process.env.WSS_PORT || 5001;
@@ -12,7 +12,7 @@ const createWss = () => {
       const json_message = JSON.parse(message.toString());
       switch (json_message.type) {
         case process.env.VITE_REACT_APP_WSS_USERFIND_TYPE: {
-          const responce = await UsersSearchService.searchByName(
+          const responce = await SearchService.searchUsersByName(
             json_message.sender,
             json_message.message
           );
