@@ -10,6 +10,7 @@ const createWss = () => {
   wss.on(`connection`, (ws) => {
     ws.on(`message`, async (message) => {
       const json_message = JSON.parse(message.toString());
+
       switch (json_message.type) {
         case process.env.VITE_REACT_APP_WSS_USERFIND_TYPE: {
           const responce = await SearchService.searchUsersByName(
@@ -20,8 +21,6 @@ const createWss = () => {
           ws.send(JSON.stringify(responce));
         }
       }
-
-      ws.send(message.toString());
     });
   });
 };
