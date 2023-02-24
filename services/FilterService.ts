@@ -9,6 +9,7 @@ class FilterService {
         natural.PorterStemmer.stem(search_string)
       )
     );
+
     return filtered_users_list;
   }
 }
