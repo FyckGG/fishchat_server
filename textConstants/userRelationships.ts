@@ -1,4 +1,4 @@
-const enum RouteNames {
+const enum UserRelationships {
   FRIEND = "friends",
   SUBSCRIBER_SOURCE = "subscriber_source",
   SUBSCRIBER_TARGET = "subscriber_target",
@@ -7,4 +7,4 @@ const enum RouteNames {
   DEFAULT = "default",
 }
 
-export default RouteNames;
+export default UserRelationships;
