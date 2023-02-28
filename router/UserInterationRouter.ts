@@ -4,14 +4,21 @@ import UserInterationController from "../controllers/UserInterationController";
 
 const router = Router();
 
-// router.post("/registration", UserController.registration);
-// router.post("/authorization", UserController.authorization);
-// router.get("/refresh", UserController.refresh);
-// router.get("/logout", authenticateToken, UserController.logout);
 router.post(
   "/send-follow",
   authenticateToken,
   UserInterationController.sendFollow
+);
+router.delete(
+  "/cancel-follow",
+  authenticateToken,
+  UserInterationController.cancelFollow
+);
+router.post("/ban-user", authenticateToken, UserInterationController.banUser);
+router.delete(
+  "/cancel-ban-user",
+  authenticateToken,
+  UserInterationController.cancelBanUser
 );
 
 export default router;
