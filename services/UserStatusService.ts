@@ -6,8 +6,8 @@ import userRelationships from "./../textConstants/userRelationships";
 
 class UserStatusService {
   async getUsersRelationships(
-    source_user_id: Types.ObjectId,
-    target_user_id: Types.ObjectId
+    source_user_id: Types.ObjectId | string,
+    target_user_id: Types.ObjectId | string
   ) {
     const is_friends = await UserFriends.findOne({
       user_1: source_user_id,
@@ -30,7 +30,7 @@ class UserStatusService {
     if (is_follow_target) return userRelationships.SUBSCRIBER_TARGET;
     const is_blocked_source = await BlockedUsers.findOne({
       source_id: source_user_id,
-      target_id: source_user_id,
+      target_id: target_user_id,
     });
     if (is_blocked_source) return userRelationships.BLOCKED_SOURCE;
     const is_blocked_target = await BlockedUsers.findOne({
