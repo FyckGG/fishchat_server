@@ -17,22 +17,24 @@ class UserSearchService {
     const messages_for_search: MessageDto[] = [];
     await Promise.all(
       filtered_users_list.map(async (user) => {
-        const user_status = await UserStatusService.getUsersRelationships(
-          searching_user,
-          user._id
-        );
-
-        user_dto_for_search.push({
-          ...new UserDtoForSearch(user, user_status),
-        });
-
-        const user_message =
-          await MessageSearchService.searchLastMessageByUsername(
+        if (searching_user != user._id) {
+          const user_status = await UserStatusService.getUsersRelationships(
             searching_user,
             user._id
           );
-        if (user_message)
-          messages_for_search.push({ ...new MessageDto(user_message) });
+
+          user_dto_for_search.push({
+            ...new UserDtoForSearch(user, user_status),
+          });
+
+          const user_message =
+            await MessageSearchService.searchLastMessageByUsername(
+              searching_user,
+              user._id
+            );
+          if (user_message)
+            messages_for_search.push({ ...new MessageDto(user_message) });
+        }
       })
     );
 
