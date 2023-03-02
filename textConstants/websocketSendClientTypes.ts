@@ -5,6 +5,8 @@ const enum WebsocketSendClientTypes {
   CANCEL_FOLLOW = "cancel_follow",
   BAN = "ban",
   CANCEL_BAN = "cancel_ban",
+  ADD_FRIEND = "add_friend",
+  DELETE_FRIEND = "delete_friend",
 }
 
 export default WebsocketSendClientTypes;

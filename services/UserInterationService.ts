@@ -122,6 +122,80 @@ class UserInterationService {
 
     return user_status;
   }
+
+  async addFriend(source_user_id: string, target_user_id: string) {
+    const source_user = await User.findById(source_user_id);
+    if (!source_user)
+      throw DataBaseError.DocumentNotFound("Source user not found");
+    const target_user = await User.findById(target_user_id);
+    if (!target_user)
+      throw DataBaseError.DocumentNotFound("Target user not found");
+    const is_friends = await UserFriends.findOne({
+      user_1: source_user_id,
+      user_2: target_user_id,
+    });
+    const swap_is_friends = await UserFriends.findOne({
+      user_1: target_user_id,
+      user_2: source_user_id,
+    });
+    if (is_friends || swap_is_friends) throw DataBaseError.AddingAgainError();
+
+    const is_follow = await UserFollowers.findOne({
+      source_id: target_user_id,
+      target_id: source_user_id,
+    });
+
+    if (!is_follow)
+      throw DataBaseError.DocumentNotFound("UserFollow not found");
+
+    await UserFriends.create({
+      user_1: source_user_id,
+      user_2: target_user_id,
+    });
+
+    await UserFollowers.deleteOne({
+      source_id: target_user_id,
+      target_id: source_user_id,
+    });
+
+    const user_status = await UserStatusService.getUsersRelationships(
+      source_user_id,
+      target_user_id
+    );
+    return user_status;
+  }
+
+  async deleteFriend(source_user_id: string, target_user_id: string) {
+    const source_user = await User.findById(source_user_id);
+    if (!source_user)
+      throw DataBaseError.DocumentNotFound("Source user not found");
+    const target_user = await User.findById(target_user_id);
+    if (!target_user)
+      throw DataBaseError.DocumentNotFound("Target user not found");
+    const is_friends = await UserFriends.findOne({
+      user_1: source_user_id,
+      user_2: target_user_id,
+    });
+    const swap_is_friends = await UserFriends.findOne({
+      user_1: target_user_id,
+      user_2: source_user_id,
+    });
+    if (!is_friends && !swap_is_friends)
+      throw DataBaseError.CancelActionError();
+    await UserFriends.deleteOne({
+      user_1: source_user_id,
+      user_2: target_user_id,
+    });
+    await UserFriends.deleteOne({
+      user_1: target_user_id,
+      user_2: source_user_id,
+    });
+    const user_status = await UserStatusService.getUsersRelationships(
+      source_user_id,
+      target_user_id
+    );
+    return user_status;
+  }
 }
 
 export default new UserInterationService();

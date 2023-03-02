@@ -64,21 +64,6 @@ const createWss = () => {
               json_message.source,
               clients
             );
-            // const target_result = await UserStatusService.getUsersRelationships(
-            //   json_message.target,
-            //   json_message.source
-            // );
-            // clients.map((client) => {
-            //   if (client.user_id == json_message.target) {
-            //     client.value.send(
-            //       JSON.stringify({
-            //         message_type: WebsocketSendServerTypes.NEW_STATUS,
-            //         new_status: target_result,
-            //         target_user_id: json_message.source,
-            //       })
-            //     );
-            //   }
-            // });
           }
           break;
 
@@ -127,6 +112,48 @@ const createWss = () => {
         case WebsocketSendClientTypes.CANCEL_BAN:
           {
             const result = await UserInterationService.cancelBanUser(
+              json_message.source,
+              json_message.target
+            );
+            ws.send(
+              JSON.stringify({
+                message_type: WebsocketSendServerTypes.NEW_STATUS,
+                new_status: result,
+                target_user_id: json_message.target,
+              })
+            );
+            await getTargetResult(
+              json_message.target,
+              json_message.source,
+              clients
+            );
+          }
+          break;
+
+        case WebsocketSendClientTypes.ADD_FRIEND:
+          {
+            const result = await UserInterationService.addFriend(
+              json_message.source,
+              json_message.target
+            );
+            ws.send(
+              JSON.stringify({
+                message_type: WebsocketSendServerTypes.NEW_STATUS,
+                new_status: result,
+                target_user_id: json_message.target,
+              })
+            );
+            await getTargetResult(
+              json_message.target,
+              json_message.source,
+              clients
+            );
+          }
+          break;
+
+        case WebsocketSendClientTypes.DELETE_FRIEND:
+          {
+            const result = await UserInterationService.deleteFriend(
               json_message.source,
               json_message.target
             );
