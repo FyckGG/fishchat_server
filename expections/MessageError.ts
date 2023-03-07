@@ -1,4 +1,4 @@
-export default class SendingMessageError extends Error {
+export default class MessageError extends Error {
   constructor(
     public status: number,
     public message: string,
@@ -8,6 +8,6 @@ export default class SendingMessageError extends Error {
   }
 
   static BadRequest(message: string, errors = []) {
-    return new SendingMessageError(400, message, errors);
+    return new MessageError(400, message, errors);
   }
 }
