@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import { WebSocketClients } from "../globalInterfaces/WebSocketClients";
 import SearchService from "../services/SearchService";
-import UserStatusService from "../services/UserStatusService";
+import SendingMessageService from "../services/SendingMessageService";
 import UserInterationService from "../services/UserInterationService";
 import WebsocketSendClientTypes from "../textConstants/websocketSendClientTypes";
 import WebsocketSendServerTypes from "../textConstants/websocketSendServerTypes";
@@ -169,6 +169,37 @@ const createWss = () => {
               json_message.source,
               clients
             );
+          }
+          break;
+        case WebsocketSendClientTypes.SEND_DIALOG_MESSAGE:
+          {
+            //console.log("hh");
+            const result = await SendingMessageService.sendDialogMessage(
+              json_message.source,
+              json_message.target,
+              json_message.message_text
+            );
+            ws.send(
+              JSON.stringify({
+                message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
+                new_message: result,
+              })
+            );
+            clients.map((client) => {
+              if (client.user_id == json_message.target) {
+                client.value.send(
+                  JSON.stringify({
+                    message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
+                    new_message: result,
+                  })
+                );
+              }
+            });
+          }
+          break;
+        case WebsocketSendClientTypes.CHANGE_MESSAGE_READ_STATUS:
+          {
+            console.log("cscskdmclsd");
           }
           break;
       }
