@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import { WebSocketClients } from "../globalInterfaces/WebSocketClients";
 import SearchService from "../services/SearchService";
-import SendingMessageService from "../services/SendingMessageService";
+import MessageService from "../services/MessageService";
 import UserInterationService from "../services/UserInterationService";
 import WebsocketSendClientTypes from "../textConstants/websocketSendClientTypes";
 import WebsocketSendServerTypes from "../textConstants/websocketSendServerTypes";
@@ -173,8 +173,7 @@ const createWss = () => {
           break;
         case WebsocketSendClientTypes.SEND_DIALOG_MESSAGE:
           {
-            //console.log("hh");
-            const result = await SendingMessageService.sendDialogMessage(
+            const result = await MessageService.sendDialogMessage(
               json_message.source,
               json_message.target,
               json_message.message_text
@@ -185,6 +184,9 @@ const createWss = () => {
                 new_message: result,
               })
             );
+            clients.map((client) => {
+              if (client.value == ws) console.log(client.user_id);
+            });
             clients.map((client) => {
               if (client.user_id == json_message.target) {
                 client.value.send(
@@ -199,7 +201,23 @@ const createWss = () => {
           break;
         case WebsocketSendClientTypes.CHANGE_MESSAGE_READ_STATUS:
           {
-            console.log("cscskdmclsd");
+            const result = await MessageService.changeMessageReadStatus(
+              json_message.message_id
+            );
+            clients.map((client) => {
+              if (
+                client.user_id == result.source_user_id.toString() ||
+                client.user_id == result.target_user_id.toString()
+              ) {
+                client.value.send(
+                  JSON.stringify({
+                    message_type:
+                      WebsocketSendServerTypes.NEW_MESSAGE_READ_STATUS,
+                    message_id: result.message_id.toString(),
+                  })
+                );
+              }
+            });
           }
           break;
       }
