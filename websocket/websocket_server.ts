@@ -182,17 +182,17 @@ const createWss = () => {
               JSON.stringify({
                 message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
                 new_message: result,
+                interlocutor_id: json_message.target,
               })
             );
-            clients.map((client) => {
-              if (client.value == ws) console.log(client.user_id);
-            });
+
             clients.map((client) => {
               if (client.user_id == json_message.target) {
                 client.value.send(
                   JSON.stringify({
                     message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
                     new_message: result,
+                    interlocutor_id: json_message.source,
                   })
                 );
               }
@@ -214,6 +214,10 @@ const createWss = () => {
                     message_type:
                       WebsocketSendServerTypes.NEW_MESSAGE_READ_STATUS,
                     message_id: result.message_id.toString(),
+                    interlocutor_id:
+                      client.user_id == result.source_user_id.toString()
+                        ? result.target_user_id
+                        : result.source_user_id,
                   })
                 );
               }

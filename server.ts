@@ -5,8 +5,8 @@ import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import user_router from "./router/UserRouter";
-import user_interation_router from "./router/UserInterationRouter";
-import createWss from "./websocket_server";
+import message_router from "./router/MessageRouter";
+import createWss from "./websocket/websocket_server";
 
 const PORT = process.env.PORT || 5000;
 dotenv.config();
@@ -32,7 +32,7 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded());
 app.use(express.json());
 app.use("/user", user_router);
-app.use("/user-interation", user_interation_router);
+app.use("/message", message_router);
 mongoose.set("strictQuery", true);
 
 const start = async () => {
