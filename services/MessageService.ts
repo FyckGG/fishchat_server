@@ -3,7 +3,12 @@ import UserFriend from "../models/UserFriends";
 import MessageError from "../expections/MessageError";
 
 class MessageService {
-  async getDialogMessages(user_1: string, user_2: string) {
+  async getDialogMessages(
+    user_1: string,
+    user_2: string,
+    message_count: number,
+    list_part: number
+  ) {
     const is_friends = await UserFriend.findOne({
       user_1: user_1,
       user_2: user_2,
@@ -21,7 +26,18 @@ class MessageService {
       ],
     });
 
-    return dialog_messages;
+    dialog_messages.reverse();
+
+    const dialog_messages_part = dialog_messages.slice(
+      list_part * message_count,
+      (list_part + 1) * message_count
+    );
+    dialog_messages_part.reverse();
+
+    return {
+      messages: dialog_messages_part,
+      dialog_length: dialog_messages.length,
+    };
   }
 
   async sendDialogMessage(
