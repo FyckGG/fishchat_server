@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import user_router from "./router/UserRouter";
 import message_router from "./router/MessageRouter";
+import dialog_router from "./router/DialogRouter";
 import createWss from "./websocket/websocket_server";
 
 const PORT = process.env.PORT || 5000;
@@ -33,6 +34,7 @@ app.use(express.urlencoded());
 app.use(express.json());
 app.use("/user", user_router);
 app.use("/message", message_router);
+app.use("/dialog", dialog_router);
 mongoose.set("strictQuery", true);
 
 const start = async () => {
