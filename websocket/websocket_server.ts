@@ -7,6 +7,7 @@ import WebsocketSendClientTypes from "../textConstants/websocketSendClientTypes"
 import WebsocketSendServerTypes from "../textConstants/websocketSendServerTypes";
 import { getTargetResult } from "./helpers/getTargetResult";
 import User from "../models/User";
+import UserFriends from "../models/UserFriends";
 
 const createWss = () => {
   const WSS_PORT = process.env.WSS_PORT || 5001;
@@ -174,35 +175,47 @@ const createWss = () => {
           break;
         case WebsocketSendClientTypes.SEND_DIALOG_MESSAGE:
           {
-            const result = await MessageService.sendDialogMessage(
-              json_message.source,
-              json_message.target,
-              json_message.message_text
-            );
-            const interlocutor = await User.findById(json_message.target);
-            ws.send(
-              JSON.stringify({
-                message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
-                new_message: result,
-                interlocutor_id: json_message.target,
-                interlocutor_name: interlocutor?.login,
-              })
-            );
-            await Promise.all(
-              clients.map(async (client) => {
-                if (client.user_id == json_message.target) {
-                  const interlocutor = await User.findById(json_message.source);
-                  client.value.send(
-                    JSON.stringify({
-                      message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
-                      new_message: result,
-                      interlocutor_id: json_message.source,
-                      interlocutor_name: interlocutor?.login,
-                    })
-                  );
-                }
-              })
-            );
+            try {
+              const result = await MessageService.sendDialogMessage(
+                json_message.source,
+                json_message.target,
+                json_message.message_text
+              );
+              const interlocutor = await User.findById(json_message.target);
+              ws.send(
+                JSON.stringify({
+                  message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
+                  new_message: result,
+                  interlocutor_id: json_message.target,
+                  interlocutor_name: interlocutor?.login,
+                })
+              );
+              await Promise.all(
+                clients.map(async (client) => {
+                  if (client.user_id == json_message.target) {
+                    const interlocutor = await User.findById(
+                      json_message.source
+                    );
+                    client.value.send(
+                      JSON.stringify({
+                        message_type:
+                          WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
+                        new_message: result,
+                        interlocutor_id: json_message.source,
+                        interlocutor_name: interlocutor?.login,
+                      })
+                    );
+                  }
+                })
+              );
+            } catch (e: any) {
+              ws.send(
+                JSON.stringify({
+                  message_type: WebsocketSendServerTypes.ERROR,
+                  error: e.message,
+                })
+              );
+            }
           }
           break;
         case WebsocketSendClientTypes.CHANGE_MESSAGE_READ_STATUS:
