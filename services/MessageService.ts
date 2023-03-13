@@ -1,5 +1,7 @@
+import User from "./../models/User";
 import DialogMessage from "../models/DialogMessage";
 import UserFriend from "../models/UserFriends";
+import DataBaseError from "../expections/DataBaseError";
 import MessageError from "../expections/MessageError";
 
 class MessageService {
@@ -9,6 +11,10 @@ class MessageService {
     message_count: number,
     list_part: number
   ) {
+    const user_model_1 = await User.findById(user_1);
+    const user_model_2 = await User.findById(user_2);
+    if (!user_model_1 || !user_model_2)
+      throw DataBaseError.DocumentNotFound("User not found");
     const is_friends = await UserFriend.findOne({
       user_1: user_1,
       user_2: user_2,
@@ -36,6 +42,8 @@ class MessageService {
 
     return {
       messages: dialog_messages_part,
+      user_1_name: user_model_1.login,
+      user_2_name: user_model_2.login,
       dialog_length: dialog_messages.length,
     };
   }

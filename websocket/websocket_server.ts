@@ -6,6 +6,7 @@ import UserInterationService from "../services/UserInterationService";
 import WebsocketSendClientTypes from "../textConstants/websocketSendClientTypes";
 import WebsocketSendServerTypes from "../textConstants/websocketSendServerTypes";
 import { getTargetResult } from "./helpers/getTargetResult";
+import User from "../models/User";
 
 const createWss = () => {
   const WSS_PORT = process.env.WSS_PORT || 5001;
@@ -178,25 +179,30 @@ const createWss = () => {
               json_message.target,
               json_message.message_text
             );
+            const interlocutor = await User.findById(json_message.target);
             ws.send(
               JSON.stringify({
                 message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
                 new_message: result,
                 interlocutor_id: json_message.target,
+                interlocutor_name: interlocutor?.login,
               })
             );
-
-            clients.map((client) => {
-              if (client.user_id == json_message.target) {
-                client.value.send(
-                  JSON.stringify({
-                    message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
-                    new_message: result,
-                    interlocutor_id: json_message.source,
-                  })
-                );
-              }
-            });
+            await Promise.all(
+              clients.map(async (client) => {
+                if (client.user_id == json_message.target) {
+                  const interlocutor = await User.findById(json_message.source);
+                  client.value.send(
+                    JSON.stringify({
+                      message_type: WebsocketSendServerTypes.NEW_DIALOG_MESSAGE,
+                      new_message: result,
+                      interlocutor_id: json_message.source,
+                      interlocutor_name: interlocutor?.login,
+                    })
+                  );
+                }
+              })
+            );
           }
           break;
         case WebsocketSendClientTypes.CHANGE_MESSAGE_READ_STATUS:
@@ -204,24 +210,32 @@ const createWss = () => {
             const result = await MessageService.changeMessageReadStatus(
               json_message.message_id
             );
-            clients.map((client) => {
-              if (
-                client.user_id == result.source_user_id.toString() ||
-                client.user_id == result.target_user_id.toString()
-              ) {
-                client.value.send(
-                  JSON.stringify({
-                    message_type:
-                      WebsocketSendServerTypes.NEW_MESSAGE_READ_STATUS,
-                    message_id: result.message_id.toString(),
-                    interlocutor_id:
-                      client.user_id == result.source_user_id.toString()
-                        ? result.target_user_id
-                        : result.source_user_id,
-                  })
-                );
-              }
-            });
+            await Promise.all(
+              clients.map(async (client) => {
+                if (
+                  client.user_id == result.source_user_id.toString() ||
+                  client.user_id == result.target_user_id.toString()
+                ) {
+                  const interlocutor = await User.findById(
+                    client.user_id == result.source_user_id.toString()
+                      ? result.target_user_id
+                      : result.source_user_id
+                  );
+                  client.value.send(
+                    JSON.stringify({
+                      message_type:
+                        WebsocketSendServerTypes.NEW_MESSAGE_READ_STATUS,
+                      message_id: result.message_id.toString(),
+                      interlocutor_id:
+                        client.user_id == result.source_user_id.toString()
+                          ? result.target_user_id
+                          : result.source_user_id,
+                      interlocutor_name: interlocutor?.login,
+                    })
+                  );
+                }
+              })
+            );
           }
           break;
       }
