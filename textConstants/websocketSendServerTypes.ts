@@ -3,6 +3,7 @@ const enum WebsocketSendServerTypes {
   NEW_STATUS = "new_status",
   NEW_DIALOG_MESSAGE = "new_dialog_message",
   NEW_MESSAGE_READ_STATUS = "new_message_read_status",
+  ERROR = "error",
 }
 
 export default WebsocketSendServerTypes;
