@@ -34,38 +34,32 @@ class DialogService {
       )
         interlocutors.push(message.target_id.toString());
     });
-    //console.log(interlocutors);
 
-    await Promise.all(
-      interlocutors.map(async (interlocutor) => {
-        const interlocutor_model = await User.findById(interlocutor);
-        if (!interlocutor_model)
-          throw DataBaseError.DocumentNotFound("Interlocutor not found");
-        const dialog_messages = await DialogMessage.find({
-          $or: [
-            { source_id: user_id, target_id: interlocutor },
-            { source_id: interlocutor, target_id: user_id },
-          ],
-        });
-        dialog_messages.reverse();
-        const dialog_messages_part = dialog_messages.slice(
-          dialog_part * dialog_count,
-          (dialog_part + 1) * dialog_count
-        );
-        dialog_messages_part.reverse();
-        //   return {
-        //     messages: dialog_messages_part,
-        //     dialog_length: dialog_messages.length,
-        //   };
-        dialog_list.push({
-          interlocutor_id: interlocutor,
-          interlocutor_name: interlocutor_model.login,
-          messages: dialog_messages_part,
-          dialog_length: dialog_messages.length,
-        });
-      })
-    );
-    //console.log(dialog_list);
+    for (let interlocutor of interlocutors) {
+      const interlocutor_model = await User.findById(interlocutor);
+      if (!interlocutor_model)
+        throw DataBaseError.DocumentNotFound("Interlocutor not found");
+      const dialog_messages = await DialogMessage.find({
+        $or: [
+          { source_id: user_id, target_id: interlocutor },
+          { source_id: interlocutor, target_id: user_id },
+        ],
+      });
+      dialog_messages.reverse();
+      const dialog_messages_part = dialog_messages.slice(
+        dialog_part * dialog_count,
+        (dialog_part + 1) * dialog_count
+      );
+      dialog_messages_part.reverse();
+
+      dialog_list.push({
+        interlocutor_id: interlocutor,
+        interlocutor_name: interlocutor_model.login,
+        messages: dialog_messages_part,
+        dialog_length: dialog_messages.length,
+      });
+    }
+
     return dialog_list;
   }
 }
