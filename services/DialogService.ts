@@ -35,6 +35,8 @@ class DialogService {
         interlocutors.push(message.target_id.toString());
     });
 
+    //console.log(interlocutors.length);
+
     for (let interlocutor of interlocutors) {
       const interlocutor_model = await User.findById(interlocutor);
       if (!interlocutor_model)
@@ -60,7 +62,8 @@ class DialogService {
       });
     }
 
-    return dialog_list;
+    //return dialog_list;
+    return { dialogs: dialog_list, dialogs_count: interlocutors.length };
   }
 }
 
