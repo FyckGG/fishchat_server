@@ -15,16 +15,16 @@ class MessageService {
     const user_model_2 = await User.findById(user_2);
     if (!user_model_1 || !user_model_2)
       throw DataBaseError.DocumentNotFound("User not found");
-    const is_friends = await UserFriend.findOne({
-      user_1: user_1,
-      user_2: user_2,
-    });
-    const swap_is_friends = await UserFriend.findOne({
-      user_1: user_2,
-      user_2: user_1,
-    });
-    if (!is_friends && !swap_is_friends)
-      throw MessageError.BadRequest("You can send message only friends");
+    // const is_friends = await UserFriend.findOne({
+    //   user_1: user_1,
+    //   user_2: user_2,
+    // });
+    // const swap_is_friends = await UserFriend.findOne({
+    //   user_1: user_2,
+    //   user_2: user_1,
+    // });
+    // if (!is_friends && !swap_is_friends)
+    // throw MessageError.BadRequest("You can send message only friends");
     const dialog_messages = await DialogMessage.find({
       $or: [
         { source_id: user_1, target_id: user_2 },
